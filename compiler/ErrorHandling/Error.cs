@@ -23,7 +23,7 @@ public static class Error
                 here += ".";
         }
 
-        Console.WriteLine(sourceCode + "\n" + here);
+        Console.WriteLine(sourceCode + "\n" + here + "\n");
     }
 
     private static string? getSourceCode(int line)

@@ -4,6 +4,7 @@ using System.IO;
 public class Compiler
 {
     public static List<string?> sourceCode = new List<string?>();
+    public static Boolean hadError = false;
 
     public static void Main(string[] args)
     {
@@ -33,6 +34,10 @@ public class Compiler
             storeLine(line);
 
             // scan this line
+
+            // indicates an error in the code
+            if(hadError)
+                throw new Exception("Fix compilation errors and run the code again.");
 
             line = file.ReadLine();
             numLine++;
