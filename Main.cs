@@ -45,6 +45,8 @@ public class Compiler
             if(hadError)
                 throw new Exception("Fix compilation errors and run the code again.");
 
+            Parser parser = new Parser(tokens);
+
             line = file.ReadLine();
             numLine++;
         }

@@ -159,7 +159,11 @@ public class Lexer
 
             case "/":
                 if(currChar != '/')
+                {
                     addToken(SLASH, "/");
+                    forward();
+                    break;
+                }
 
                 // it is a comment
                 ignoreLine();
