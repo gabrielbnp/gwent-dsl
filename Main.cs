@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using static TokenType;
 
 public class Compiler
 {
@@ -32,7 +31,15 @@ public class Compiler
 
         while( line != null )
         {
+            storeLine(line);
+
             // scan this line
+
+            Lexer lexer = new Lexer(line, numLine);
+            List<Token> tokens = lexer.getTokens;
+
+            foreach(Token token in tokens)
+                Console.WriteLine(token);
 
             // indicates an error in the code
             if(hadError)
