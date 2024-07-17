@@ -33,19 +33,17 @@ public class Compiler
         {
             storeLine(line);
 
-            // scan this line
-
             Lexer lexer = new Lexer(line, numLine);
             List<Token> tokens = lexer.getTokens;
-
-            foreach(Token token in tokens)
-                Console.WriteLine(token);
 
             // indicates an error in the code
             if(hadError)
                 throw new Exception("Fix compilation errors and run the code again.");
 
             Parser parser = new Parser(tokens);
+            Interpreter interpreter = new Interpreter();
+
+            interpreter.interpret( parser.parse() );
 
             line = file.ReadLine();
             numLine++;
