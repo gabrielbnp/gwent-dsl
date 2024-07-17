@@ -20,12 +20,12 @@ public enum TokenType
 public class Token
 {
     public TokenType type;
-    public string? lexeme;
+    public string lexeme;
     public object? literal;
     public int numLine;
     public int numColumn;
 
-    public Token(TokenType type, string? lexeme, object? literal, int numLine, int numColumn)
+    public Token(TokenType type, string lexeme, object? literal, int numLine, int numColumn)
     {
         this.type = type;
         this.lexeme = lexeme;
@@ -35,11 +35,11 @@ public class Token
         this.numColumn = numColumn;
     }
 
-    public string toString()
+    public override string ToString()
     {
         if(literal == null)
             return "[" + type + "] \'" + lexeme + "\'";
 
-        return "[" + type + "] \'" + lexeme + "\' " + (string) literal;  
+        return "[" + type + "] \'" + lexeme + "\' " + literal;  
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using static TokenType;
 
 public class Compiler
 {
@@ -31,8 +32,6 @@ public class Compiler
 
         while( line != null )
         {
-            storeLine(line);
-
             // scan this line
 
             // indicates an error in the code
