@@ -1,21 +1,20 @@
+using System;
 using static TokenType;
 
-public interface IVisitor
-{
-    public object visit(exprLiteral expr);
-    public object visit(exprUnary expr);
-    public object visit(exprBinary expr);
-    public object visit(exprGrouping expr);
-}
-
-public class Interpreter : IVisitor
+public class Interpreter : IExprVisitor, IStmtVisitor
 {
 
-    public void interpret(IExpr expr)
+    public void interpret(List<IStmt> statements)
     {
-        object value = evaluate(expr);
+        foreach(IStmt stmt in statements)
+        {
+            execute(stmt);
+        }
+    }
 
-        System.Console.WriteLine(value);
+    private void execute(IStmt stmt)
+    {
+        stmt.accept(this);
     }
 
     #region Visitor
@@ -53,13 +52,13 @@ public class Interpreter : IVisitor
         switch( expr.oper.type )
         {
             case PLUS:
-                return (Int64) left + (Int64) right;
+                return (long) left + (long) right;
             case MINUS:
-                return (Int64) left - (Int64) right;
+                return (long) left - (long) right;
             case STAR:
-                return (Int64) left * (Int64) right;
+                return (long) left * (long) right;
             case SLASH:
-                return (Int64) left / (Int64) right;
+                return (long) left / (long) right;
 
             case EQUAL_EQUAL:
                 return left == right;
@@ -78,6 +77,12 @@ public class Interpreter : IVisitor
         return null!;
     }
 
+    public void visit(stmtPrint stmt)
+    {
+        object value = evaluate( stmt.expr );
+        Console.WriteLine(value.ToString());
+    }
+
     #endregion Visitor
 
     #region Tools
@@ -89,7 +94,7 @@ public class Interpreter : IVisitor
 
     private bool isTrue(object value)
     {
-        if( (value is Int64) && ((Int64) value == 0) )
+        if( (value is long) && ((long) value == 0) )
             return false;
 
         if( (value is string) && ((string) value == "") )

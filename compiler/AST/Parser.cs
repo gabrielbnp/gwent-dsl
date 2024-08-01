@@ -9,12 +9,20 @@ public class Parser
         this.tokens = tokens;
     }
 
-    public IExpr parse()
+    public List<IStmt> parse()
     {
-        return expression();
+        List<IStmt> statements = new List<IStmt>();
+
+        while( isAtEnd == false )
+        {
+            IStmt stmt = statement();
+            statements.Add( stmt );
+        }
+
+        return statements;
     }
 
-    #region Grammar
+    #region Expr Grammar
 
     private IExpr primary()
     {
@@ -129,7 +137,38 @@ public class Parser
         return comparison();
     }
 
-    #endregion Grammar
+    #endregion Expr Grammar
+
+    #region Stmt Grammar
+
+    private IStmt stmtPrint()
+    {
+        IExpr value = expression();
+
+        if( check(SEMICOLON) )
+        {
+            forward();
+        }
+        else
+        {
+            // throw an error here
+        }
+
+        return new stmtPrint(value);
+    }
+
+    private IStmt statement()
+    {
+        if( check(PRINT) )
+        {
+            forward();
+            return stmtPrint();
+        }
+
+        return null!;
+    }
+
+    #endregion Stmt Grammar
 
     #region Tools
 

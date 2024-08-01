@@ -3,6 +3,7 @@ public enum TokenType
     // single-character tokens
     LEFT_PAR, RIGHT_PAR,
     PLUS, MINUS, STAR, SLASH,
+    SEMICOLON,
 
     // one or two character tokens
     EQUAL, EQUAL_EQUAL,
@@ -14,7 +15,7 @@ public enum TokenType
     IDENTIFIER, STRING, NUMBER,
 
     // keywords
-    AND, OR, TRUE, FALSE
+    AND, OR, TRUE, FALSE, PRINT
 }
 
 public class Token

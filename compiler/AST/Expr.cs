@@ -1,8 +1,19 @@
 public interface IExpr
 {
-    public object accept(IVisitor visitor);
+    public object accept(IExprVisitor visitor);
 }
 
+#region Expression Visitor
+public interface IExprVisitor
+{
+    public object visit(exprLiteral expr);
+    public object visit(exprUnary expr);
+    public object visit(exprBinary expr);
+    public object visit(exprGrouping expr);
+}
+#endregion Expression Visitor
+
+#region Expressions
 public class exprLiteral : IExpr
 {
     public object value;
@@ -12,7 +23,7 @@ public class exprLiteral : IExpr
         this.value = value;
     }
 
-    public object accept(IVisitor visitor)
+    public object accept(IExprVisitor visitor)
     {
         return visitor.visit(this);
     }
@@ -37,7 +48,7 @@ public class exprUnary : IExpr
         this.expr = expr;
     }
 
-    public object accept(IVisitor visitor)
+    public object accept(IExprVisitor visitor)
     {
         return visitor.visit(this);
     }
@@ -55,7 +66,7 @@ public class exprBinary : IExpr
         this.right = right;
     }
 
-    public object accept(IVisitor visitor)
+    public object accept(IExprVisitor visitor)
     {
         return visitor.visit(this);
     }
@@ -70,8 +81,10 @@ public class exprGrouping : IExpr
         this.expr = expr;
     }
 
-    public object accept(IVisitor visitor)
+    public object accept(IExprVisitor visitor)
     {
         return visitor.visit(this);
     }
+
+    #endregion Expressions
 }

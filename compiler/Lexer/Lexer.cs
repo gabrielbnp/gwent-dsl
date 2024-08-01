@@ -52,7 +52,7 @@ public class Lexer
         }
         else if( isAlpha(token[0]) )
         {
-            while( (isAtEnd == false) && ( isDigit(currChar) || isAlpha(currChar) ) )
+            while( (isAtEnd == false) && isAlphaNumeric(currChar) )
             {
                 token += currChar;
                 forward();
@@ -89,6 +89,10 @@ public class Lexer
 
             case "*":
                 addToken(STAR, "*");
+                break;
+
+            case ";":
+                addToken(SEMICOLON, ";");
                 break;
 
             case "=":
@@ -165,31 +169,18 @@ public class Lexer
                     break;
                 }
 
-                // it is a comment
-                ignoreLine();
+                // it is a comment, so we will ignore the whole line
+                commentDetected();
                 break;
 
             case "\"": // it is a string
-                while( (isAtEnd == false) && (currChar != '\"') )
-                    forward();
-
-                if( isAtEnd == false )
-                {
-                    string str = sourceCode.Substring(start + 1, end - start - 1);
-                    
-                    addToken(STRING, str, str);
-                    forward();
-
-                    break;
-                }
-
-                Error.error(numLine, end - 1, "Unterminated string. Expected '\"' character.");
+                stringDetected();
                 break;
 
             default:
                 if( isDigit(possibleToken[0]) )
                 {
-                    addToken(NUMBER, possibleToken, Int64.Parse(possibleToken) );
+                    addToken(NUMBER, possibleToken, long.Parse(possibleToken) );
                     break;
                 }
                 else if( isAlpha(possibleToken[0]) )
@@ -232,6 +223,29 @@ public class Lexer
         end = sourceCode.Length;
     }
 
+    private void commentDetected()
+    {
+        ignoreLine();
+    }
+
+    private void stringDetected()
+    {
+        while( (isAtEnd == false) && (currChar != '\"') )
+                forward();
+
+        if( isAtEnd == false )
+        {
+            string str = sourceCode.Substring(start + 1, end - start - 1);
+                    
+            addToken(STRING, str, str);
+            forward();
+        }
+        else
+        {
+            Error.error(numLine, end - 1, "Unterminated string. Expected '\"' character.");
+        }
+    }
+
     private void addToken(TokenType type, string lexeme, object? literal)
     {
         tokens.Add( new Token(type, lexeme, literal, numLine, start) );
@@ -261,6 +275,11 @@ public class Lexer
         return false;
     }
 
+    private bool isAlphaNumeric(char c)
+    {
+        return isAlpha(c) || isDigit(c);
+    }
+
     private bool isKeyword(string keyword)
     {
         switch(keyword)
@@ -271,6 +290,10 @@ public class Lexer
 
             case "false":
                 addToken(FALSE, "false", false);
+                return true;
+
+            case "print":
+                addToken(PRINT, "print");
                 return true;
 
             default:
