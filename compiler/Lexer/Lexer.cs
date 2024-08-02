@@ -165,7 +165,6 @@ public class Lexer
                 if(currChar != '/')
                 {
                     addToken(SLASH, "/");
-                    forward();
                     break;
                 }
 
@@ -294,6 +293,18 @@ public class Lexer
 
             case "print":
                 addToken(PRINT, "print");
+                return true;
+
+            case "int":
+                addToken(INT, "int");
+                return true;
+
+            case "bool":
+                addToken(BOOL, "bool");
+                return true;
+
+            case "str":
+                addToken(STR, "str");
                 return true;
 
             default:

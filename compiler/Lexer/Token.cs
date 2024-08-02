@@ -15,7 +15,7 @@ public enum TokenType
     IDENTIFIER, STRING, NUMBER,
 
     // keywords
-    AND, OR, TRUE, FALSE, PRINT
+    AND, OR, TRUE, FALSE, PRINT, INT, BOOL, STR
 }
 
 public class Token

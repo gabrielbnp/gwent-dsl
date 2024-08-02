@@ -1,90 +1,78 @@
-public interface IExpr
+public interface Expr
 {
-    public object accept(IExprVisitor visitor);
+    public object accept(ExprVisitor visitor);
 }
 
-#region Expression Visitor
-public interface IExprVisitor
+public interface ExprVisitor
 {
-    public object visit(exprLiteral expr);
-    public object visit(exprUnary expr);
-    public object visit(exprBinary expr);
-    public object visit(exprGrouping expr);
+    public object visitBinary(exprBinary expr);
+    public object visitGrouping(exprGrouping expr);
+    public object visitLiteral(exprLiteral expr);
+    public object visitUnary(exprUnary expr);
 }
-#endregion Expression Visitor
 
-#region Expressions
-public class exprLiteral : IExpr
+public class exprBinary : Expr // left oper right
+{
+    public Expr left;
+    public Expr right;
+    public Token oper;
+
+    public exprBinary(Expr left, Token oper, Expr right)
+    {
+        this.left = left;
+        this.right = right;
+        this.oper = oper;
+    }
+
+    public object accept(ExprVisitor visitor)
+    {
+        return visitor.visitBinary(this);
+    }
+}
+
+public class exprGrouping : Expr // ( expression )
+{
+    public Expr expression;
+
+    public exprGrouping(Expr expression)
+    {
+        this.expression = expression;
+    }
+
+    public object accept(ExprVisitor visitor)
+    {
+        return visitor.visitGrouping(this);
+    }
+}
+
+public class exprLiteral : Expr
 {
     public object value;
 
     public exprLiteral(object value)
     {
-        this.value = value;
+        this.value = value!;
     }
 
-    public object accept(IExprVisitor visitor)
+    public object accept(ExprVisitor visitor)
     {
-        return visitor.visit(this);
-    }
-
-    public override string ToString()
-    {
-        if(value == null)
-            return "";
-
-        return (string) value;
+        return visitor.visitLiteral(this);
     }
 }
 
-public class exprUnary : IExpr
+public class exprUnary : Expr // ( "!" | "-" ) expression
 {
     public Token oper;
-    public IExpr expr;
+    public Expr expression;
 
-    public exprUnary(Token oper, IExpr expr)
+    public exprUnary(Token oper, Expr expression)
     {
         this.oper = oper;
-        this.expr = expr;
+        this.expression = expression;
     }
 
-    public object accept(IExprVisitor visitor)
+    public object accept(ExprVisitor visitor)
     {
-        return visitor.visit(this);
+        return visitor.visitUnary(this);
     }
-}
-
-public class exprBinary : IExpr
-{
-    public IExpr left, right;
-    public Token oper;
-
-    public exprBinary(IExpr left, Token oper, IExpr right)
-    {
-        this.left = left;
-        this.oper = oper;
-        this.right = right;
-    }
-
-    public object accept(IExprVisitor visitor)
-    {
-        return visitor.visit(this);
-    }
-}
-
-public class exprGrouping : IExpr
-{
-    public IExpr expr;
-
-    public exprGrouping(IExpr expr)
-    {
-        this.expr = expr;
-    }
-
-    public object accept(IExprVisitor visitor)
-    {
-        return visitor.visit(this);
-    }
-
-    #endregion Expressions
 }

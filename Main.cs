@@ -41,9 +41,9 @@ public class Compiler
                 throw new Exception("Fix compilation errors and run the code again.");
 
             Parser parser = new Parser(tokens);
-            Interpreter interpreter = new Interpreter();
+            Interpreter interpreter = new Interpreter(parser.parse());
 
-            interpreter.interpret( parser.parse() );
+            interpreter.interpret();
 
             line = file.ReadLine();
             numLine++;

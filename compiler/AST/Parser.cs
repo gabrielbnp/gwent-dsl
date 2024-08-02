@@ -1,4 +1,24 @@
-using static TokenType;
+/*
+    a program is a series of declarations
+    program --> declaration* ;
+
+    declaration     --> var_declaration
+                    |   statement ;
+    
+    var_declaration --> ( "int" | "bool" | "str" ) IDENTIFIER ( "=" expression )? ";" ;
+
+    statement       --> print_statement ;
+    print_statement --> "print" expression ";" ;
+
+    expression      --> comparison ;
+    comparison      --> term ( ( "==" | "!=" | "<" | "<=" | ">" | ">=" ) term )* ;
+    term            --> factor ( ( "+" | "-" ) factor )* ;
+    factor          --> unary ( ( "*" | "/" ) unary )* ;
+    unary           --> ( "-" | "!" ) unary
+                    |   primary ;
+    primary         --> "true" | "false" | NUMBER | STRING | IDENTIFIER | "(" expression ")" ;
+
+*/
 
 public class Parser
 {
@@ -9,208 +29,186 @@ public class Parser
         this.tokens = tokens;
     }
 
-    public List<IStmt> parse()
+    public List<Stmt> parse()
     {
-        List<IStmt> statements = new List<IStmt>();
+        List<Stmt> declarations = new List<Stmt>();
 
-        while( isAtEnd == false )
+        while(!isAtEnd)
         {
-            IStmt stmt = statement();
-            statements.Add( stmt );
+            Stmt decl = parseDeclaration();
+            declarations.Add(decl);
         }
 
-        return statements;
+        return declarations;
     }
 
-    #region Expr Grammar
-
-    private IExpr primary()
+    private Stmt parseDeclaration()
     {
-        if( check(TRUE) )
+        return parseStatement();
+    }
+
+    private Stmt parseStatement()
+    {
+        if( check(TokenType.PRINT) )
         {
-            forward();
+            advance();
+            return parsePrint();
+        }
+        
+        // report an error because only print stament (for now) are valid
+
+        return null!;
+    }
+
+    private Stmt parsePrint()
+    {
+        Expr expression = parseExpression();
+
+        // check for semicolon ";"
+        advance();
+
+        return new stmtPrint(expression);
+    }
+
+    private Expr parseExpression()
+    {
+        return parseComparison();
+    }
+
+    private Expr parseComparison()
+    {
+        Expr term = parseTerm();
+
+        while( check( new TokenType[] {TokenType.EQUAL_EQUAL, TokenType.BANG_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL, TokenType.GREATER, TokenType.GREATER_EQUAL } ) )
+        {
+            Token oper = currToken;
+            advance();
+
+            Expr term_ = parseTerm();
+
+            term = new exprBinary(term, oper, term_);
+        }
+
+        return term;
+    }
+
+    private Expr parseTerm()
+    {
+        Expr factor = parseFactor();
+
+        while( check( new TokenType[] {TokenType.PLUS, TokenType.MINUS} ) )
+        {
+            Token oper = currToken;
+            advance();
+
+            Expr factor_ = parseFactor();
+
+            factor = new exprBinary(factor, oper, factor_);
+        }
+
+        return factor;
+    }
+
+    private Expr parseFactor()
+    {
+        Expr unary = parseUnary();
+
+        while( check( new TokenType[] {TokenType.STAR, TokenType.SLASH} ) )
+        {
+            Token oper = currToken;
+            advance();
+
+            Expr unary_ = parseUnary();
+
+            unary = new exprBinary(unary,oper, unary_);
+        }
+
+        return unary;
+    }
+
+    private Expr parseUnary()
+    {
+        if( check( new TokenType[] {TokenType.MINUS, TokenType.BANG} ) )
+        {
+            Token oper = currToken;
+            advance();
+
+            Expr unary = parseUnary();
+
+            return new exprUnary(oper, unary);
+        }
+
+        return parsePrimary();
+    }
+
+    private Expr parsePrimary()
+    {
+        if( check(TokenType.TRUE) )
+        {
+            advance();
             return new exprLiteral(true);
         }
-
-        if( check(FALSE) )
+        else if( check(TokenType.FALSE) )
         {
-            forward();
+            advance();
             return new exprLiteral(false);
         }
-
-        if( check( new TokenType[] {NUMBER, STRING} ) )
+        else if( check(new TokenType[] {TokenType.NUMBER, TokenType.STRING} ) )
         {
-            IExpr expr = new exprLiteral( currToken.literal! );
-            forward();
-
-            return expr;
+            object value = currToken.literal!;
+            advance();
+            return new exprLiteral(value)!;
         }
-
-        if( check(LEFT_PAR) )
+        else if( check(TokenType.LEFT_PAR) )
         {
-            forward();
-            IExpr expr = expression();
+            advance();
+            Expr expression = parseExpression();
 
-            if( !check(RIGHT_PAR) )
-            {
-                // throw an error
-            }
+            // check for the right parentheses.
 
-            forward();
+            advance();
 
-            return new exprGrouping(expr);
-
+            return new exprGrouping(expression);
         }
-
-        // at this point throws an error with message "Expect expression"
+        
         return null!;
     }
-
-    private IExpr unary()
-    {
-        if( check( new TokenType[] {BANG, MINUS} ) )
-        {
-            Token oper = currToken;
-            forward();
-
-            IExpr expr = unary();
-
-            return new exprUnary(oper, expr);
-        }
-
-        return primary();
-    }
-
-    private IExpr factor()
-    {
-        IExpr left = unary();
-
-        while( check( new TokenType[] {STAR, SLASH} ) )
-        {
-            Token oper = currToken;
-            forward();
-
-            IExpr right = unary();
-
-            left = new exprBinary(left, oper, right);
-        }
-
-        return left;
-    }
-
-    private IExpr term()
-    {
-        IExpr left = factor();
-
-        while( check( new TokenType[] {PLUS, MINUS} ) )
-        {
-            Token oper = currToken;
-            forward();
-
-            IExpr right = factor();
-
-            left = new exprBinary(left, oper, right);
-        }
-
-        return left;
-    }
-
-    private IExpr comparison()
-    {
-        IExpr left = term();
-
-        while( check( new TokenType[] {EQUAL_EQUAL, BANG_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL} ) )
-        {
-            Token oper = currToken;
-            forward();
-
-            IExpr right = term();
-
-            left = new exprBinary(left, oper, right);
-        }
-
-        return left;
-    }
-
-    private IExpr expression()
-    {
-        return comparison();
-    }
-
-    #endregion Expr Grammar
-
-    #region Stmt Grammar
-
-    private IStmt stmtPrint()
-    {
-        IExpr value = expression();
-
-        if( check(SEMICOLON) )
-        {
-            forward();
-        }
-        else
-        {
-            // throw an error here
-        }
-
-        return new stmtPrint(value);
-    }
-
-    private IStmt statement()
-    {
-        if( check(PRINT) )
-        {
-            forward();
-            return stmtPrint();
-        }
-
-        return null!;
-    }
-
-    #endregion Stmt Grammar
 
     #region Tools
 
-    private int current = 0;
-
-    private bool isAtEnd
-    {
-        get { return current >= tokens.Count; }
-    }
-
-    private Token currToken
-    {
-        get { return tokens[current]; }
-    }
-
-    private void forward()
-    {
-        if( isAtEnd == false )
-            current++;
-    }
-
-    private bool check(TokenType type)
-    {
-        if( isAtEnd )
-            return false;
-
-        return currToken.type == type;
-    }
-
-    private bool check(TokenType[] types)
-    {
-        if( isAtEnd )
-            return false;
-
-        foreach(TokenType type in types)
+        private int current = 0;
+        
+        private bool isAtEnd
         {
-            if( currToken.type == type )
-                return true;
+            get { return ( current >= tokens.Count() ? true : false ); }
         }
 
-        return false;
-    }
+        private void advance()
+        {
+            if(!isAtEnd)
+                current++;
+        }
+
+        private Token currToken
+        {
+            get { return tokens[current]; }
+        }
+
+        private bool check(TokenType type)
+        {
+            return currToken.type == type;
+        }
+
+        private bool check(TokenType[] types)
+        {
+            foreach(TokenType t in types)
+            {
+                if( check(t) )
+                    return true;
+            }
+
+            return false;
+        }
 
     #endregion Tools
 }

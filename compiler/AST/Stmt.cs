@@ -1,29 +1,24 @@
-public interface IStmt
+public interface Stmt
 {
-    public void accept(IStmtVisitor vistor);
+    public void accept(StmtVisitor visitor);
 }
 
-#region Statment Visitor
-public interface IStmtVisitor
+public interface StmtVisitor
 {
-    public void visit(stmtPrint expr);
+    public void visitPrint(stmtPrint stmt);
 }
-#endregion Statment Visitor
 
-#region Statements
-public class stmtPrint : IStmt
+public class stmtPrint : Stmt // print expression;
 {
-    public IExpr expr;
+    public Expr expression;
 
-    public stmtPrint(IExpr expr)
+    public stmtPrint(Expr expression)
     {
-        this.expr = expr;
+        this.expression = expression;
     }
 
-    public void accept(IStmtVisitor visitor)
+    public void accept(StmtVisitor visitor)
     {
-        visitor.visit(this);
+        visitor.visitPrint(this);
     }
-
-    #endregion Statements
 }
