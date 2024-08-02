@@ -196,7 +196,7 @@ public class Parser
 
         private bool check(TokenType type)
         {
-            return currToken.type == type;
+            return (isAtEnd ? false : currToken.type == type);
         }
 
         private bool check(TokenType[] types)
