@@ -11,7 +11,7 @@ public interface ExprVisitor
     public object visitUnary(exprUnary expr);
 }
 
-public class exprBinary : Expr // left oper right
+public class exprBinary : Expr // left ( "+" | "-" | "*" | "/" | "==" | "!=" | "<" | "<=" | ">" | ">=" ) right
 {
     public Expr left;
     public Expr right;
@@ -45,8 +45,9 @@ public class exprGrouping : Expr // ( expression )
     }
 }
 
-public class exprLiteral : Expr
+public class exprLiteral : Expr // NUMBER | STRING | "true" | "false"
 {
+
     public object value;
 
     public exprLiteral(object value)

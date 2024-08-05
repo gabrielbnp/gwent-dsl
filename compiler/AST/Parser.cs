@@ -23,31 +23,34 @@
 public class Parser
 {
     private List<Token> tokens;
+    private List<Stmt> declarations = new List<Stmt>();
+
+    public List<Stmt> getListOfDecl
+    {
+        get { return declarations; }
+    }
 
     public Parser(List<Token> tokens)
     {
         this.tokens = tokens;
     }
 
-    public List<Stmt> parse()
+    public void parse()
     {
-        List<Stmt> declarations = new List<Stmt>();
-
         while(!isAtEnd)
         {
-            Stmt decl = parseDeclaration();
-            declarations.Add(decl);
+            Stmt? decl = parseDeclaration();
+            if(decl != null)
+                declarations.Add(decl);
         }
-
-        return declarations;
     }
 
-    private Stmt parseDeclaration()
+    private Stmt? parseDeclaration()
     {
         return parseStatement();
     }
 
-    private Stmt parseStatement()
+    private Stmt? parseStatement()
     {
         if( check(TokenType.PRINT) )
         {
@@ -64,7 +67,7 @@ public class Parser
     {
         Expr expression = parseExpression();
 
-        // check for semicolon ";"
+        // check for semicolon ;
         advance();
 
         return new stmtPrint(expression);
@@ -165,7 +168,7 @@ public class Parser
             Expr expression = parseExpression();
 
             // check for the right parentheses.
-
+            
             advance();
 
             return new exprGrouping(expression);

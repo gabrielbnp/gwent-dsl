@@ -61,7 +61,7 @@ public class Interpreter : ExprVisitor, StmtVisitor
             if(unary.oper.type == TokenType.MINUS)
                 value = -(long) value;
             else if(unary.oper.type == TokenType.BANG)
-                value = !isTrue(value);
+                value = !(bool) value;
 
             return value;
         }
@@ -180,19 +180,6 @@ public class Interpreter : ExprVisitor, StmtVisitor
         private bool isLessEqual(object left, object right)
         {
             return isLess(left, right) || isEqual(left, right);
-        }
-
-        private bool isTrue(object value)
-        {
-            if(value is bool)
-                return (bool) value;
-
-            if( (value is long) && ((long) value == 0) )
-                return false;
-            if( (value is string) && ((string) value == "") )
-                return false;
-
-            return true;
         }
     
     #endregion

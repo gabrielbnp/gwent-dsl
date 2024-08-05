@@ -41,8 +41,11 @@ public class Compiler
                 throw new Exception("Fix compilation errors and run the code again.");
 
             Parser parser = new Parser(tokens);
-            Interpreter interpreter = new Interpreter(parser.parse());
+            parser.parse();
 
+            List<Stmt> program = parser.getListOfDecl;
+
+            Interpreter interpreter = new Interpreter(program);
             interpreter.interpret();
 
             line = file.ReadLine();
